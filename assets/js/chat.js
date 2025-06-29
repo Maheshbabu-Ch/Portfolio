@@ -10,15 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
     e.stopPropagation(); // Prevent the click from bubbling up
     chatWindow.classList.toggle("active");
     toggleButton.classList.toggle("hidden");
-      
+
     if (chatWindow.classList.contains("active")) {
-         chatbotContainer.classList.remove("inactive");
+      chatbotContainer.classList.remove("inactive");
       setTimeout(() => {
         userInput.focus();
       }, 100);
+    } else {
+      chatbotContainer.classList.add("inactive");
     }
-    else {
-    chatbotContainer.classList.add("inactive");}
   });
 
   // Close when clicking outside
