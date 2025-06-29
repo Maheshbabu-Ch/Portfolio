@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta property="og:title" content="Mahesh Babu Chitikela – Full-Stack Developer | Python & MERN" />
     <meta property="og:description" content="Full-stack web developer with expertise in Django and the MERN stack. Passionate about building scalable applications, RESTful APIs, and real-time systems. Explore my projects including PaySphere, Tweetify, and more." />
-    <meta property="og:image" content="public/images/og-image.jpg" />
-    <meta property="og:url" content="https://mahesh-babu-portfolio.vercel.app/" />
+    <meta property="og:image" content="https://maheshbabu-portfolio.vercel.app/images/og-image.jpg" />
+    <meta property="og:url" content="https://maheshbabu-portfolio.vercel.app/" />
     <meta property="og:type" content="website" />
     <link rel="icon" href="images/logo.png" type="image/png" />
 
@@ -704,6 +704,12 @@
         pointer-events: auto;
         z-index: 9999;
       }
+
+      .chatbot-container:not(.active) .chatbot-toggle {
+  pointer-events: auto;
+  z-index: 9999; /* Make sure toggle is on top */
+  position: relative; /* Required for z-index to work */
+}
     </style>
     <script src="assets/js/fin.js" id="yourware-lib"></script>
   </head>
