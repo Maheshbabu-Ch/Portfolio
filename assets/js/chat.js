@@ -1,54 +1,36 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const chatLog = document.querySelector(".chatbot-messages");
-  const userInput = document.querySelector(".chatbot-input");
-  const sendButton = document.querySelector(".send-button");
-  const toggleButton = document.querySelector(".chatbot-toggle");
-  const chatWindow = document.querySelector(".chatbot-window");
-  const chatbotContainer = document.querySelector(".chatbot-container");
-  // Toggle chat window
-  toggleButton.addEventListener("click", (e) => {
-    e.stopPropagation(); // Prevent the click from bubbling up
-    chatWindow.classList.toggle("active");
-    toggleButton.classList.toggle("hidden");
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleButton = document.querySelector(".chatbot-toggle");
+      const chatWindow = document.querySelector(".chatbot-window");
+      const userInput = document.querySelector(".chatbot-input");
+      const sendButton = document.querySelector(".send-button");
+      const chatLog = document.querySelector(".chatbot-messages");
 
-    if (chatWindow.classList.contains("active")) {
-      chatbotContainer.classList.remove("inactive");
-      setTimeout(() => {
-        userInput.focus();
-      }, 100);
-    } else {
-      chatbotContainer.classList.add("inactive");
-    }
-  });
+  // Open Chatbot
+      function toggleChat() {
+        chatWindow.classList.toggle("active");
+        if (chatWindow.classList.contains("active")) {
+          setTimeout(() => userInput.focus(), 300);
+        }
+      }
 
-  // Close when clicking outside
-  document.addEventListener("click", (e) => {
-    const isChatWindow = e.target.closest(".chatbot-window");
-    const isToggleButton = e.target.closest(".chatbot-toggle");
+      // Close when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!chatWindow.contains(e.target) && e.target !== toggleButton) {
+          chatWindow.classList.remove("active");
+        }
+      });
 
-    if (
-      !isChatWindow &&
-      !isToggleButton &&
-      chatWindow.classList.contains("active")
-    ) {
-      // Add shrink animation class
-      chatWindow.classList.add("closing");
+      toggleButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleChat();
+      });
 
-      // After animation completes, hide the window
-      setTimeout(() => {
-        chatWindow.classList.remove("active", "closing");
-        toggleButton.classList.remove("hidden");
-        chatbotContainer.classList.add("inactive");
-      }, 500); // Match this with CSS animation duration
-    }
-  });
-
-  // Send message function
+  // Send Message Function
   function sendMessage() {
     const userMsg = userInput.value.trim();
     if (!userMsg) return;
 
-    // Display user message
+    // Show user message
     const userMsgDiv = document.createElement("div");
     userMsgDiv.className = "message user-message";
     userMsgDiv.innerHTML = `<strong>You:</strong> ${userMsg}`;
@@ -62,25 +44,23 @@ document.addEventListener("DOMContentLoaded", () => {
     typingDiv.className = "message typing-indicator";
     typingDiv.id = "typing-indicator";
     typingDiv.innerHTML = `
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-        `;
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    `;
     chatLog.appendChild(typingDiv);
     chatLog.scrollTop = chatLog.scrollHeight;
 
-    // Call the function to get the bot's response
+    // Ask server (fake/placeholder call)
     askGroq(userMsg);
   }
 
-  // Event listeners
   sendButton.addEventListener("click", sendMessage);
   userInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
+    if (e.key === "Enter") sendMessage();
   });
 
+  // Simulated async response
   async function askGroq(userMsg) {
     try {
       const response = await fetch("/api/chat", {
@@ -88,35 +68,24 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          message: userMsg,
-        }),
+        body: JSON.stringify({ message: userMsg }),
       });
 
       const data = await response.json();
-
       const botReply = data.reply || "Sorry, something went wrong.";
 
       // Remove typing indicator
-      const typingIndicator = document.getElementById("typing-indicator");
-      if (typingIndicator) {
-        typingIndicator.remove();
-      }
+      document.getElementById("typing-indicator")?.remove();
 
-      // Display bot message
+      // Show bot reply
       const botMsgDiv = document.createElement("div");
       botMsgDiv.className = "message bot-message";
       botMsgDiv.innerHTML = `<strong>Luma:</strong> ${botReply}`;
       chatLog.appendChild(botMsgDiv);
       chatLog.scrollTop = chatLog.scrollHeight;
     } catch (err) {
-      // Remove typing indicator
-      const typingIndicator = document.getElementById("typing-indicator");
-      if (typingIndicator) {
-        typingIndicator.remove();
-      }
+      document.getElementById("typing-indicator")?.remove();
 
-      // Display error message
       const errorDiv = document.createElement("div");
       errorDiv.className = "message bot-message error";
       errorDiv.innerHTML = `<strong>Luma:</strong> Something went wrong. Try again later.`;
@@ -125,26 +94,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Detect system color scheme preference
-  if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.add("light");
+  // Theme detection (dark/light)
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function applyTheme() {
+    if (prefersDark.matches) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
   }
 
-  // Watch for changes in color scheme preference
-  window
-    .matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", (event) => {
-      if (event.matches) {
-        document.documentElement.classList.remove("light");
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.classList.add("light");
-      }
-    });
+  applyTheme();
+  prefersDark.addEventListener("change", applyTheme);
 });
